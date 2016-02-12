@@ -1,5 +1,5 @@
-#ifndef OMNI_VREP_OMNIGRASPER_HPP_
-#define OMNI_VREP_OMNIGRASPER_HPP_
+#ifndef OMNI_VREP_OMNIPOINTER_HPP_
+#define OMNI_VREP_OMNIPOINTER_HPP_
 
 #include <vector>
 #include <string>
@@ -25,9 +25,9 @@
 #include <vrep_common/simRosGetJointState.h>
 
 namespace omni_vrep{
-class Omnigrasper {
+class Omnipointer {
 public:
-    Omnigrasper(std::string model_file, bool dynamic = true, int sim_retries = 5, int max_ms_to_wait = 3000, double position_eps = 1e-3)
+    Omnipointer(std::string model_file, bool dynamic = true, int sim_retries = 5, int max_ms_to_wait = 3000, double position_eps = 1e-3)
     {
         _model_file = boost::filesystem::complete(boost::filesystem::path(model_file)).native();
         _dynamic = dynamic;
@@ -288,7 +288,7 @@ public:
 private:
     void _initialize()
     {
-        const std::vector<std::string> joint_names = {"joint1", "joint2", "joint3", "joint4"};
+        const std::vector<std::string> joint_names = {"arm_joint_1", "arm_joint_2", "arm_joint_3", "arm_joint_4"};
         const std::string youBot_name = "youBot";
         const std::string base_reference_name = "youBot_vehicleReference";
         const std::string base_target_pos_name = "youBot_vehicleTargetPosition";
