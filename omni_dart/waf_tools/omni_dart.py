@@ -6,6 +6,7 @@
 Quick n dirty omni_dart detection
 """
 
+import os
 from waflib.Configure import conf
 
 
@@ -32,7 +33,7 @@ def check_omni_dart(conf, **kw):
         res = False
 
     if res:
-        conf.env.INCLUDES_OMNI_DART = includes_check
+        conf.env.INCLUDES_OMNI_DART = [os.path.expanduser(include) for include in includes_check]
         conf.env.DEFINES_OMNI_DART = ['USE_OMNI_DART']
         conf.end_msg('ok')
     else:

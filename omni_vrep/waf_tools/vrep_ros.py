@@ -67,8 +67,8 @@ def check_vrep_ros(conf, **kw):
         res = False
 
     if res:
-        conf.env.INCLUDES_VREP_ROS = includes_check
-        conf.env.LIBPATH_VREP_ROS = libs_check
+        conf.env.INCLUDES_VREP_ROS = [os.path.expanduser(include) for include in includes_check]
+        conf.env.LIBPATH_VREP_ROS = [os.path.expanduser(lib) for lib in libs_check]
         conf.env.LIB_VREP_ROS = ['v_repExtRos']
         conf.env.DEFINES_VREP_ROS = ['USE_VREP_ROS']
         conf.end_msg('ok')

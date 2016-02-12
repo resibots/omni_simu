@@ -66,8 +66,8 @@ def check_ros(conf, **kw):
         res = False
 
     if res:
-        conf.env.INCLUDES_ROS = includes_check
-        conf.env.LIBPATH_ROS = libs_check
+        conf.env.INCLUDES_ROS = [os.path.expanduser(include) for include in includes_check]
+        conf.env.LIBPATH_ROS = [os.path.expanduser(lib) for lib in libs_check]
         conf.env.LIB_ROS = libs
         conf.env.DEFINES_ROS = ['USE_ROS']
         conf.end_msg('ok')

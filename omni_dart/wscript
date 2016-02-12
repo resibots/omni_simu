@@ -53,4 +53,4 @@ def build(bld):
                 uselib='BOOST EIGEN DART DART_GRAPHIC',
                 target='omni_dart_test')
 
-    bld.install_files('${PREFIX}/include/omni_dart', bld.path.ant_glob('include/omni_dart/*.hpp'), relative_trick=True)
+    bld.install_files('${PREFIX}', bld.path.ant_glob('include/omni_dart/*.hpp'), relative_trick=True)

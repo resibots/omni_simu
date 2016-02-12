@@ -8,7 +8,6 @@ Quick n dirty DART detection
 
 import os
 from waflib.Configure import conf
-import re
 
 
 def options(opt):
@@ -64,8 +63,8 @@ def check_dart(conf, **kw):
         res = False
 
     if res:
-        conf.env.INCLUDES_DART = includes_check
-        conf.env.LIBPATH_DART = libs_check
+        conf.env.INCLUDES_DART = [os.path.expanduser(include) for include in includes_check]
+        conf.env.LIBPATH_DART = [os.path.expanduser(lib) for lib in libs_check]
         conf.env.LIB_DART = ['dart', 'dart-core']
         conf.env.DEFINES_DART = ['USE_DART']
         conf.end_msg('ok')
@@ -111,10 +110,10 @@ def check_dart(conf, **kw):
         res = False
 
     if res:
-        conf.env.INCLUDES_DART_GRAPHIC = includes_check
-        conf.env.LIBPATH_DART_GRAPHIC = libs_check
+        conf.env.INCLUDES_DART_GRAPHIC = [os.path.expanduser(include) for include in includes_check]
+        conf.env.LIBPATH_DART_GRAPHIC = [os.path.expanduser(lib) for lib in libs_check]
         conf.env.LIB_DART_GRAPHIC = ['dart', 'dart-core', 'osgDart']
-        conf.env.DEFINES_DART = ['USE_DART']
+        conf.env.DEFINES_DART_GRAPHIC = ['USE_DART_GRAPHIC']
         conf.end_msg('ok')
     else:
         if conf.options.dart and resibots_dir:

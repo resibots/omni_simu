@@ -7,6 +7,7 @@
 Quick n dirty eigen detection
 """
 
+import os
 from waflib.Configure import conf
 
 
@@ -33,7 +34,7 @@ def check_eigen(conf, **kw):
         res = False
 
     if res:
-        conf.env.INCLUDES_EIGEN = includes_check
+        conf.env.INCLUDES_EIGEN = [os.path.expanduser(include) for include in includes_check]
         conf.env.DEFINES_EIGEN = ['USE_EIGEN']
         conf.end_msg('ok')
     else:

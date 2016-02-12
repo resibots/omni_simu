@@ -6,6 +6,7 @@
 Quick n dirty omni_vrep detection
 """
 
+import os
 from waflib.Configure import conf
 
 
@@ -32,7 +33,7 @@ def check_omni_vrep(conf, **kw):
         res = False
 
     if res:
-        conf.env.INCLUDES_OMNI_VREP = includes_check
+        conf.env.INCLUDES_OMNI_VREP = [os.path.expanduser(include) for include in includes_check]
         conf.env.DEFINES_OMNI_VREP = ['USE_OMNI_VREP']
         conf.end_msg('ok')
     else:

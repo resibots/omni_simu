@@ -56,4 +56,4 @@ def build(bld):
                 uselib='BOOST EIGEN ROS VREP_ROS',
                 target='omni_vrep_test')
 
-    bld.install_files('${PREFIX}/include/omni_vrep', bld.path.ant_glob('include/omni_vrep/*.hpp'), relative_trick=True)
+    bld.install_files('${PREFIX}', bld.path.ant_glob('include/omni_vrep/*.hpp'), relative_trick=True)
