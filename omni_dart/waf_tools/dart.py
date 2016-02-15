@@ -32,7 +32,7 @@ def check_dart(conf, **kw):
         libs_check = [conf.options.dart + '/lib'] + libs_check
 
     conf.start_msg('Checking for DART includes')
-    res = False
+    res = True
     try:
         for incl in ['dart', 'dart-core']:
             res = res and conf.find_file('dart/' + incl + '.h', includes_check)
@@ -112,7 +112,7 @@ def check_dart(conf, **kw):
     if res:
         conf.env.INCLUDES_DART_GRAPHIC = [os.path.expanduser(include) for include in includes_check]
         conf.env.LIBPATH_DART_GRAPHIC = [os.path.expanduser(lib) for lib in libs_check]
-        conf.env.LIB_DART_GRAPHIC = ['dart', 'dart-core', 'osgDart']
+        conf.env.LIB_DART_GRAPHIC = ['dart', 'dart-core', 'osgDart', 'osg', 'osgViewer', 'osgManipulator', 'osgGA', 'osgDB']
         conf.env.DEFINES_DART_GRAPHIC = ['USE_DART_GRAPHIC']
         conf.end_msg('ok')
     else:

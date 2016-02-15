@@ -128,7 +128,6 @@ public:
         _initialize();
     }
 
-    // Takes values between 0 and 1
     void base_displace(double x, double y, bool wait_to_reach = false)
     {
         vrep_set_obj_pos_t srv;
@@ -176,7 +175,6 @@ public:
         }
     }
 
-    // Takes values between 0 and 1
     void base_rotate(double theta, bool wait_to_reach = false)
     {
         vrep_set_obj_quat_t srv;
@@ -225,7 +223,6 @@ public:
         }
     }
 
-    // Takes values between 0 and 1
     void set_joints_positions(const Eigen::Vector4d& joints, bool wait_to_reach = false)
     {
         for (auto i = 0; i < 4; i++) {
