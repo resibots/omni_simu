@@ -71,17 +71,19 @@ protected:
             return;
         _skeleton->setName("omnipointer");
 
-        /*std::cout << "Joints: ";
+        _skeleton->getBodyNode(0)->changeParentJointType<WeldJoint>();
+
+        std::cout << "Joints: ";
 
         for (size_t i = 0; i < _skeleton->getNumJoints() - 1; ++i)
-            std::cout << _skeleton->getJoint(i)->getName() << " - ";
-        std::cout << _skeleton->getJoint(_skeleton->getNumJoints() - 1)->getName() << std::endl;
+            std::cout << _skeleton->getJoint(i)->getType() << " - ";
+        std::cout << _skeleton->getJoint(_skeleton->getNumJoints() - 1)->getType() << std::endl;
 
         std::cout << "Bodies: ";
 
         for (size_t i = 0; i < _skeleton->getNumBodyNodes() - 1; ++i)
             std::cout << _skeleton->getBodyNode(i)->getName() << " - ";
-        std::cout << _skeleton->getBodyNode(_skeleton->getNumBodyNodes() - 1)->getName() << std::endl;*/
+        std::cout << _skeleton->getBodyNode(_skeleton->getNumBodyNodes() - 1)->getName() << std::endl;
 
         for (size_t i = 1; i <= 4; ++i) {
             _arm_joints.push_back(_skeleton->getJoint("arm_joint_" + std::to_string(i)));

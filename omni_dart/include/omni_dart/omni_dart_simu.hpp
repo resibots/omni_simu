@@ -34,7 +34,7 @@ public:
         _world->getConstraintSolver()->setCollisionDetector(new dart::collision::DARTCollisionDetector());
         _robot->skeleton()->setPosition(5, 0.2);
         
-        _add_floor();
+        //_add_floor();
         _world->addSkeleton(_robot->skeleton());
         _world->setTimeStep(0.01);
         _world->setTime(0.0);
