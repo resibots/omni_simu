@@ -42,20 +42,44 @@ public:
         _arm_joints[joint]->setCommand(0, value);
     }
 
+    Eigen::Vector3d get_end_effector_position()
+    {
+        return _arm_links.back()->getCOM();
+    }
+
+    Eigen::Vector6d pose()
+    {
+        auto pos_and_rot = _skeleton->getPositions();
+        Eigen::Vector6d tmp;
+        tmp << pos_and_rot(3), pos_and_rot(4), pos_and_rot(5), pos_and_rot(0), pos_and_rot(1), pos_and_rot(2);
+        return tmp;
+    }
+
     void arm_joint_step(int joint, double target)
     {
         assert(joint >= 0 && joint < 4);
         double q = _arm_joints[joint]->getPosition(0);
         double q_err = target - q;
-        double gain = 1.0 / (DART_PI * _skeleton->getTimeStep());
+        double gain = DART_PI / 3;
 
         _arm_joints[joint]->setCommand(0, q_err * gain);
+    }
+
+    bool check_collision()
+    {
+        for (auto link : _arm_links){            
+            if (link->isColliding()){
+                std::cout << link->getName() << " Colliding" << std::endl;
+                return true;
+            }
+        }
+
+        return false;
     }
 
 protected:
     void _load_urdf(std::string urdf_file)
     {
-        std::cout << "Loading URDF..." << std::endl;
         // Load file into string
         std::ifstream t(urdf_file);
         std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -65,40 +89,27 @@ protected:
         loader.addPackageDirectory("youbot_description", "/home/fedeallocati/Workspaces/catkin_ws/src/youbot_description");
         _skeleton = loader.parseSkeletonString(str, "");
 
-        std::cout << "Loaded URDF" << std::endl;
-
         if (_skeleton == nullptr)
             return;
         _skeleton->setName("omnipointer");
 
-        _skeleton->getBodyNode(0)->changeParentJointType<WeldJoint>();
-
-        std::cout << "Joints: ";
-
-        for (size_t i = 0; i < _skeleton->getNumJoints() - 1; ++i)
-            std::cout << _skeleton->getJoint(i)->getType() << " - ";
-        std::cout << _skeleton->getJoint(_skeleton->getNumJoints() - 1)->getType() << std::endl;
-
-        std::cout << "Bodies: ";
-
-        for (size_t i = 0; i < _skeleton->getNumBodyNodes() - 1; ++i)
-            std::cout << _skeleton->getBodyNode(i)->getName() << " - ";
-        std::cout << _skeleton->getBodyNode(_skeleton->getNumBodyNodes() - 1)->getName() << std::endl;
-
         for (size_t i = 1; i <= 4; ++i) {
             _arm_joints.push_back(_skeleton->getJoint("arm_joint_" + std::to_string(i)));
             _arm_joints.back()->setPositionLimitEnforced(true);
-            //std::cout << "[" << _arm_joints.back()->getPositionLowerLimit(0) << ", " << _arm_joints.back()->getPositionUpperLimit(0) << "]" << std::endl;
             _arm_joints.back()->setActuatorType(dart::dynamics::Joint::VELOCITY);
             _arm_joints.back()->getDof(0)->setPosition(M_PI);
         }
 
-        _skeleton->enableSelfCollision();
-        std::cin.get();
+        for (size_t i = 0; i <= 5; ++i){
+            _arm_links.push_back(_skeleton->getBodyNode("arm_link_" + std::to_string(i)));
+        }
+
+        //_skeleton->enableSelfCollision();
     }
 
     dart::dynamics::SkeletonPtr _skeleton;
     std::vector<dart::dynamics::JointPtr> _arm_joints;
+    std::vector<dart::dynamics::BodyNodePtr> _arm_links;
 };
 }
 
