@@ -37,6 +37,7 @@ public:
         _world->addSkeleton(_robot->skeleton());
         _world->setTimeStep(0.01);
         _stabilize_robot();
+        //_robot->enable_self_collisions();
         _world->setTime(0.0);
         _world->getConstraintSolver()->getCollisionDetector()->detectCollision(true, true);
 

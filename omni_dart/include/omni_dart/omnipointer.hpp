@@ -65,6 +65,16 @@ public:
         _arm_joints[joint]->setCommand(0, q_err * gain);
     }
 
+    void enable_self_collisions()
+    {
+        _skeleton->enableSelfCollision();
+    }
+
+    void disable_self_collisions()
+    {
+        _skeleton->disableSelfCollision();
+    }
+
     bool check_collision()
     {
         for (auto link : _arm_links){            
@@ -103,8 +113,6 @@ protected:
         for (size_t i = 0; i <= 5; ++i){
             _arm_links.push_back(_skeleton->getBodyNode("arm_link_" + std::to_string(i)));
         }
-
-        //_skeleton->enableSelfCollision();
     }
 
     dart::dynamics::SkeletonPtr _skeleton;
