@@ -5,6 +5,7 @@
 #include <string>
 #include <chrono>
 #include <math.h>
+#include <unistd.h>
 
 #include <boost/filesystem.hpp>
 
@@ -13,6 +14,7 @@
 #include <ros/ros.h>
 
 #include <vrep_common/simRosLoadScene.h>
+#include <vrep_common/simRosCloseScene.h>
 #include <vrep_common/simRosStartSimulation.h>
 #include <vrep_common/simRosPauseSimulation.h>
 #include <vrep_common/simRosStopSimulation.h>
@@ -48,6 +50,22 @@ public:
         _initialize();
     }
 
+    ~Omnigrasper()
+    {
+        ros::ServiceClient vrep_close_scene = _n.serviceClient<vrep_common::simRosCloseScene>("vrep/simRosCloseScene");
+        vrep_common::simRosCloseScene close_scene_srv;
+
+        if (vrep_close_scene.call(close_scene_srv)) {
+            if (close_scene_srv.response.result == -1) {
+                ROS_ERROR("The scene could not be closed %d", close_scene_srv.response.result);
+                throw "The scene could not be closed";
+            }
+        } else {
+            ROS_ERROR("Falled to call service simRosCloseScene");
+            throw "Falled to call service simRosCloseScene";
+        }
+    }
+
     void init()
     {
         if (!_dynamic)
@@ -64,6 +82,7 @@ public:
                 ROS_ERROR("Falled to call service simRosStartSimulation");
             }
             i++;
+            usleep(1e6);
         }
 
         if (!started) {
@@ -88,6 +107,7 @@ public:
                 ROS_ERROR("Falled to call service simRosPauseSimulation");
             }
             i++;
+            usleep(1e6);
         }
 
         if (!paused) {
@@ -112,6 +132,7 @@ public:
                 ROS_ERROR("Falled to call service simRosStopSimulation");
             }
             i++;
+            usleep(1e6);
         }
 
         if (stoped) {
@@ -298,7 +319,7 @@ private:
 
         load_model_srv.request.fileName = _model_file;
         if (vrep_load_model.call(load_model_srv)) {
-            if (load_model_srv.response.result != 1) {
+            if (load_model_srv.response.result == -1) {
                 ROS_ERROR("The model file could not be loaded %d", load_model_srv.response.result);
                 throw "The model file could not be loaded";
             }
