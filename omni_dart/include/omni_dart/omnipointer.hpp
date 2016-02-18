@@ -14,9 +14,9 @@
 namespace omni_dart{
 class Omnipointer {
 public:
-    Omnipointer(std::string model_file)
+    Omnipointer(std::string model_file) : _model_file(model_file)
     {
-        _load_urdf(model_file);
+        _load_urdf();
     }
 
     dart::dynamics::SkeletonPtr skeleton()
@@ -24,22 +24,14 @@ public:
         return _skeleton;
     }
 
-    double get_arm_joint_position(int joint)
+    Eigen::Vector4d get_arm_joints_positions()
     {
-        assert(joint >= 0 && joint < 4);
-        return _arm_joints[joint]->getPosition(0);
+        return Eigen::Vector4d(_arm_joints[0]->getPosition(0), _arm_joints[1]->getPosition(0), _arm_joints[2]->getPosition(0), _arm_joints[3]->getPosition(0));
     }
 
-    double get_arm_joint_command(int joint)
+    Eigen::Vector4d get_arm_joints_velocities()
     {
-        assert(joint >= 0 && joint < 4);
-        return _arm_joints[joint]->getCommand(0);
-    }
-
-    void set_arm_joint_command(int joint, double value)
-    {
-        assert(joint >= 0 && joint < 4);
-        _arm_joints[joint]->setCommand(0, value);
+        return Eigen::Vector4d(_arm_joints[0]->getVelocity(0), _arm_joints[1]->getVelocity(0), _arm_joints[2]->getVelocity(0), _arm_joints[3]->getVelocity(0));
     }
 
     Eigen::Vector3d get_end_effector_position()
@@ -55,14 +47,29 @@ public:
         return tmp;
     }
 
-    void arm_joint_step(int joint, double target)
+    void arm_joints_step(const Eigen::Vector4d& target)
     {
-        assert(joint >= 0 && joint < 4);
-        double q = _arm_joints[joint]->getPosition(0);
-        double q_err = target - q;
-        double gain = DART_PI / 3;
+        // A stable PD controller taken from the Domioes example
 
-        _arm_joints[joint]->setCommand(0, q_err * gain);
+        const double KpPD = 2.0;
+        const double KdPD = 1.5;
+
+        Eigen::Vector4d q = get_arm_joints_positions();
+        Eigen::Vector4d dq = get_arm_joints_velocities();
+
+        q += dq * _skeleton->getTimeStep();
+
+        Eigen::Vector4d q_err = target - q;
+        Eigen::Vector4d dq_err = -dq;
+        
+        // Compute the desired joint forces
+        Eigen::Vector4d forces = _skeleton->getMassMatrix().bottomRightCorner<4, 4>() * (KpPD * q_err + KdPD * dq_err) + _skeleton->getCoriolisAndGravityForces().tail<4>();
+
+        size_t i = 0;
+        for (auto joint : _arm_joints) {            
+            joint->setForce(0, forces(i));
+            i++;
+        }
     }
 
     void enable_self_collisions()
@@ -77,21 +84,19 @@ public:
 
     bool check_collision()
     {
-        for (auto link : _arm_links){            
-            if (link->isColliding()){
-                std::cout << link->getName() << " Colliding" << std::endl;
+        for (auto link : _arm_links) {
+            if (link->isColliding())
                 return true;
-            }
         }
 
         return false;
     }
 
 protected:
-    void _load_urdf(std::string urdf_file)
+    void _load_urdf()
     {
         // Load file into string
-        std::ifstream t(urdf_file);
+        std::ifstream t(_model_file);
         std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 
         // Load the Skeleton from a file
@@ -106,7 +111,7 @@ protected:
         for (size_t i = 1; i <= 4; ++i) {
             _arm_joints.push_back(_skeleton->getJoint("arm_joint_" + std::to_string(i)));
             _arm_joints.back()->setPositionLimitEnforced(true);
-            _arm_joints.back()->setActuatorType(dart::dynamics::Joint::VELOCITY);
+            _arm_joints.back()->setActuatorType(dart::dynamics::Joint::FORCE);
             _arm_joints.back()->getDof(0)->setPosition(M_PI);
         }
 
@@ -115,6 +120,7 @@ protected:
         }
     }
 
+    std::string _model_file;
     dart::dynamics::SkeletonPtr _skeleton;
     std::vector<dart::dynamics::JointPtr> _arm_joints;
     std::vector<dart::dynamics::BodyNodePtr> _arm_links;

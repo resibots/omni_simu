@@ -5,11 +5,11 @@
 
 void run(char* model_file, Eigen::Vector4d joints)
 {
-    omni_dart::OmniDARTSimu<omni_dart::Omnipointer> robot(model_file);
+    omni_dart::OmniDARTSimu<omni_dart::Omnipointer> simu(model_file);
 
-    robot.set_joints_positions(joints);
+    simu.set_joints_positions(joints);
 
-    if (robot.broken())
+    if (simu.broken())
         std::cout << "Finished because of a collision detected" << std::endl;
     else
         std::cout << "Finished" << std::endl;

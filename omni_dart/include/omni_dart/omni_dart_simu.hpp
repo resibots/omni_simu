@@ -10,6 +10,7 @@
 #include <Eigen/Core>
 
 #include <dart/dart.h>
+#include <dart/collision/bullet/BulletCollisionDetector.h>
 
 #ifdef USE_DART_GRAPHIC
 #include <osgDart/osgDart.h>
@@ -23,23 +24,27 @@ public:
 
     OmniDARTSimu(std::string model_file, int max_ms_to_wait = 3000, double position_eps = 1e-3)
     {
-        _model_file = boost::filesystem::complete(boost::filesystem::path(model_file)).native();
         _max_ms_to_wait = max_ms_to_wait;
         _position_eps = position_eps;
 
         _world = std::make_shared<dart::simulation::World>();
-        _robot = std::make_shared<Robot>(_model_file);
+        _robot = std::make_shared<Robot>(boost::filesystem::complete(boost::filesystem::path(model_file)).native());
+        _floor = _make_floor();
         _broken = false;
 
-        _robot->skeleton()->setPosition(5, 0.2);
-        
-        _add_floor();
-        _world->addSkeleton(_robot->skeleton());
         _world->setTimeStep(0.01);
+        _world->getConstraintSolver()->setCollisionDetector(new dart::collision::BulletCollisionDetector());
+
+        _robot->skeleton()->setPosition(5, 0.123793);
+        _world->addSkeleton(_robot->skeleton());
+
+        _world->addSkeleton(_floor);
+
         _stabilize_robot();
-        //_robot->enable_self_collisions();
+
         _world->setTime(0.0);
-        _world->getConstraintSolver()->getCollisionDetector()->detectCollision(true, true);
+        _world->checkCollision(true);
+        _robot->enable_self_collisions();
 
 #ifdef USE_DART_GRAPHIC
         _osg_world_node = new osgDart::WorldNode(_world);
@@ -53,48 +58,51 @@ public:
 
     bool set_joints_positions(const Eigen::VectorXd& joints)
     {
-        int current = 0;        
-
+        bool reached = false;
         auto t1 = std::chrono::steady_clock::now();
         auto time_waiting = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t1).count();
 
+        int count = 0;
+        Eigen::Vector4d last_pos = Eigen::Vector4d::Zero();
+
 #ifdef USE_DART_GRAPHIC
-        while (current < joints.size() && !_osg_viewer.done())
+        while (!reached && !_osg_viewer.done())
 #else
-        while (current < joints.size())
+        while (!reached)
 #endif
         {
-            double q = _robot->get_arm_joint_position(current);
-            double q_err = joints(current) - q;
+            Eigen::Vector4d q = _robot->get_arm_joints_positions();
+            double q_err = (joints - q).norm();
 
-            if (std::abs(q_err) < _position_eps){
-                current++;
-                t1 = std::chrono::steady_clock::now();
+            if (std::abs(q_err) < _position_eps) {
+                reached = true;
                 continue;
             }
 
             time_waiting = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t1).count();
-            if (time_waiting > _max_ms_to_wait){
-                current++;
-                t1 = std::chrono::steady_clock::now();
+            if (time_waiting > _max_ms_to_wait) {
+                reached = true;                
                 continue;
             }
 
-            std::cout << "Joint " << current << std::endl;
+            if ((last_pos - q).norm() < 1e-3) {
+                count++;
+            }
+            else
+                count = 0;
 
-            _robot->arm_joint_step(current, joints(current));
+            last_pos = q;
+
+            if (count == 50) {
+                reached = true;
+                continue;
+            }
+
+            _robot->arm_joints_step(joints);
             _world->step();
 
             if(_robot->check_collision())
             {
-                for(size_t i = 0; i < _world->getConstraintSolver()->getCollisionDetector()->getNumContacts(); ++i)
-                {
-                    // If neither of the colliding BodyNodes belongs to the floor, then we
-                    // know the robot is in contact with something it shouldn't be
-                    const dart::collision::Contact& contact = _world->getConstraintSolver()->getCollisionDetector()->getContact(i);
-                    std::cout << "COLLISION: " << contact.bodyNode1.lock()->getName() << " - " << contact.bodyNode2.lock()->getName() << std::endl;
-                }
-
               _broken = true;
               return false;
             }
@@ -122,12 +130,8 @@ public:
     }
 
 protected:
-    void _add_floor()
+    dart::dynamics::SkeletonPtr _make_floor()
     {
-        // We do not want 2 floors!
-        if (_world->getSkeleton("floor") != nullptr)
-            return;
-
         auto floor = dart::dynamics::Skeleton::create("floor");
 
         // Give the floor a body
@@ -148,7 +152,7 @@ protected:
         tf.translation() = Eigen::Vector3d(0.0, 0.0, 0);
         body->getParentJoint()->setTransformFromParentBodyNode(tf);
 
-        _world->addSkeleton(floor);
+        return floor;
     }
 
     bool _stabilize_robot()
@@ -172,11 +176,11 @@ protected:
         return stabilized;
     }
 
-    robot_t _robot;
     dart::simulation::WorldPtr _world;
+    robot_t _robot;    
+    dart::dynamics::SkeletonPtr _floor;
     bool _broken;
 
-    std::string _model_file;
     int _max_ms_to_wait;
     double _position_eps;
 
