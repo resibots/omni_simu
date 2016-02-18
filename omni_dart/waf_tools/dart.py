@@ -63,7 +63,7 @@ def check_dart(conf, **kw):
         res = False
 
     if res:
-        conf.env.INCLUDES_DART = [os.path.expanduser(include) for include in includes_check]
+        conf.env.INCLUDES_DART = [os.path.expanduser(include) for include in includes_check] + ['/usr/local/include/bullet', '/usr/include/bullet']
         conf.env.LIBPATH_DART = [os.path.expanduser(lib) for lib in libs_check]
         conf.env.LIB_DART = ['dart', 'dart-core']
         conf.env.DEFINES_DART = ['USE_DART']
