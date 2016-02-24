@@ -1,7 +1,6 @@
 #ifndef OMNI_DART_OMNIPOINTER_HPP_
 #define OMNI_DART_OMNIPOINTER_HPP_
 
-#include <cassert>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -36,7 +35,7 @@ public:
 
     Eigen::Vector3d get_end_effector_position() const
     {
-        return _arm_links.back()->getCOM();
+        return _arm_links.back()->getTransform(_base_link).translation();
     }
 
     Eigen::Vector6d pose() const
@@ -118,6 +117,8 @@ protected:
         for (size_t i = 0; i <= 5; ++i){
             _arm_links.push_back(_skeleton->getBodyNode("arm_link_" + std::to_string(i)));
         }
+
+          _base_link = _skeleton->getBodyNode("base_link");
     }
 
     std::string _model_file;
@@ -125,6 +126,7 @@ protected:
     dart::dynamics::SkeletonPtr _skeleton;
     std::vector<dart::dynamics::JointPtr> _arm_joints;
     std::vector<dart::dynamics::BodyNodePtr> _arm_links;
+    dart::dynamics::BodyNodePtr _base_link;
 };
 }
 

@@ -18,6 +18,8 @@ void run(char* model_file, char* path_to_youbot_description, const Eigen::Vector
     else
         std::cout << "Finished" << std::endl;
 
+    std::cout<< "End effector position(with respect to the base_link frame): " << simu.get_end_effector_position().transpose() << std::endl;
+
     std::cin.get();
 }
 
