@@ -14,7 +14,7 @@
 namespace omni_dart{
 class Omnipointer {
 public:
-    Omnipointer(std::string model_file) : _model_file(model_file)
+    Omnipointer(std::string model_file, std::string path_to_youbot_description) : _model_file(model_file), _path_to_youbot_description(path_to_youbot_description)
     {
         _load_urdf();
     }
@@ -24,22 +24,22 @@ public:
         return _skeleton;
     }
 
-    Eigen::Vector4d get_arm_joints_positions()
+    Eigen::Vector4d get_arm_joints_positions() const
     {
         return Eigen::Vector4d(_arm_joints[0]->getPosition(0), _arm_joints[1]->getPosition(0), _arm_joints[2]->getPosition(0), _arm_joints[3]->getPosition(0));
     }
 
-    Eigen::Vector4d get_arm_joints_velocities()
+    Eigen::Vector4d get_arm_joints_velocities() const
     {
         return Eigen::Vector4d(_arm_joints[0]->getVelocity(0), _arm_joints[1]->getVelocity(0), _arm_joints[2]->getVelocity(0), _arm_joints[3]->getVelocity(0));
     }
 
-    Eigen::Vector3d get_end_effector_position()
+    Eigen::Vector3d get_end_effector_position() const
     {
         return _arm_links.back()->getCOM();
     }
 
-    Eigen::Vector6d pose()
+    Eigen::Vector6d pose() const
     {
         auto pos_and_rot = _skeleton->getPositions();
         Eigen::Vector6d tmp;
@@ -82,7 +82,7 @@ public:
         _skeleton->disableSelfCollision();
     }
 
-    bool check_collision()
+    bool check_collision() const
     {
         for (auto link : _arm_links) {
             if (link->isColliding())
@@ -101,7 +101,7 @@ protected:
 
         // Load the Skeleton from a file
         dart::utils::DartLoader loader;
-        loader.addPackageDirectory("youbot_description", "/home/fedeallocati/Workspaces/catkin_ws/src/youbot_description");
+        loader.addPackageDirectory("youbot_description", _path_to_youbot_description);
         _skeleton = loader.parseSkeletonString(str, "");
 
         if (_skeleton == nullptr)
@@ -121,6 +121,7 @@ protected:
     }
 
     std::string _model_file;
+    std::string _path_to_youbot_description;
     dart::dynamics::SkeletonPtr _skeleton;
     std::vector<dart::dynamics::JointPtr> _arm_joints;
     std::vector<dart::dynamics::BodyNodePtr> _arm_links;

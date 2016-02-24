@@ -5,8 +5,6 @@
 #include <chrono>
 #include <memory>
 
-#include <boost/filesystem.hpp>
-
 #include <Eigen/Core>
 
 #include <dart/dart.h>
@@ -20,15 +18,13 @@ namespace omni_dart {
 template <typename Robot>
 class OmniDARTSimu {
 public:
-    using robot_t = std::shared_ptr<Robot>;
-
-    OmniDARTSimu(std::string model_file, int max_ms_to_wait = 3000, double position_eps = 1e-3)
+    OmniDARTSimu(std::shared_ptr<Robot> robot, int max_ms_to_wait = 3000, double position_eps = 1e-3)
     {
         _max_ms_to_wait = max_ms_to_wait;
         _position_eps = position_eps;
 
         _world = std::make_shared<dart::simulation::World>();
-        _robot = std::make_shared<Robot>(boost::filesystem::complete(boost::filesystem::path(model_file)).native());
+        _robot = robot;
         _floor = _make_floor();
         _broken = false;
 
@@ -124,6 +120,11 @@ public:
         return true;
     }
 
+    Eigen::Vector3d get_end_effector_position() const
+    {
+        return _robot->get_end_effector_position();
+    }
+
     bool broken() const
     {
         return _broken;
@@ -177,7 +178,7 @@ protected:
     }
 
     dart::simulation::WorldPtr _world;
-    robot_t _robot;    
+    std::shared_ptr<Robot> _robot;    
     dart::dynamics::SkeletonPtr _floor;
     bool _broken;
 
