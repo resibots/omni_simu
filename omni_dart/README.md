@@ -11,19 +11,19 @@
 ### Dependencies
 - [Boost]: C++ Template Libraries
 - [Eigen]: C++ Linear Algebra Library
-- [DART]: DART (Dynamic Animation and Robotics Toolkit) is a collaborative, cross-platform, open source library that provides data structures and algorithms for kinematic and dynamic applications in robotics and computer animation. We use the **upstream version without bullet integration**:
+- [DART]: DART (Dynamic Animation and Robotics Toolkit) is a collaborative, cross-platform, open source library that provides data structures and algorithms for kinematic and dynamic applications in robotics and computer animation. We use the **upstream version with bullet integration**:
     - Get the code with `git clone https://github.com/dartsim/dart.git`
-    - Make sure you have installed all of the dependencies listed [here](https://github.com/dartsim/dart/wiki/DART%205.1%20Installation%20for%20Ubuntu#install-required-dependencies).
+    - Make sure you have installed all of the dependencies listed [here](https://github.com/dartsim/dart/wiki/DART%205.1%20Installation%20for%20Ubuntu#install-required-dependencies), including Bullet Collision Detector Support.
     - Go to the `dart` folder
     - `mkdir build && cd build`
-    - Configure with `cmake ..`
+    - Configure with `cmake ..`. Optionally you can add `-DCMAKE_INSTALL_PREFIX:PATH=/path/to/install` to install it in a custom directory.
     - Compile with `make -j4`
     - Install with `sudo make install`
 
 ### Compile and install
 
 - cd to `omni_dart` folder
-- Configure with `./waf configure --prefix=path_to_install`
+- Configure with `./waf configure --prefix=/path/to/install`
 - Compile with `./waf build`
 - Install with `./waf install`
 
