@@ -28,7 +28,7 @@ void run(char* model_file, bool dynamic)
     std::cin.get();
 
     std::cout << "Moving arm" << std::endl;
-    robot.set_joints_positions(joints);
+    robot.set_joint_positions(joints);
 
     std::cout << robot.get_end_effector_position().transpose() << std::endl;
     std::cin.get();

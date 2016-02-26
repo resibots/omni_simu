@@ -244,7 +244,7 @@ public:
         }
     }
 
-    void set_joints_positions(const Eigen::Vector4d& joints, bool wait_to_reach = false)
+    void set_joint_positions(const Eigen::Vector4d& joints, bool wait_to_reach = false)
     {
         for (auto i = 0; i < 4; i++) {
             if (_dynamic) {
