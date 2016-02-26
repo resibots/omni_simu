@@ -23,12 +23,12 @@ public:
         return _skeleton;
     }
 
-    Eigen::Vector4d get_arm_joints_positions() const
+    Eigen::Vector4d get_arm_joint_positions() const
     {
         return Eigen::Vector4d(_arm_joints[0]->getPosition(0), _arm_joints[1]->getPosition(0), _arm_joints[2]->getPosition(0), _arm_joints[3]->getPosition(0));
     }
 
-    Eigen::Vector4d get_arm_joints_velocities() const
+    Eigen::Vector4d get_arm_joint_velocities() const
     {
         return Eigen::Vector4d(_arm_joints[0]->getVelocity(0), _arm_joints[1]->getVelocity(0), _arm_joints[2]->getVelocity(0), _arm_joints[3]->getVelocity(0));
     }
@@ -53,8 +53,8 @@ public:
         const double KpPD = 2.0;
         const double KdPD = 1.5;
 
-        Eigen::Vector4d q = get_arm_joints_positions();
-        Eigen::Vector4d dq = get_arm_joints_velocities();
+        Eigen::Vector4d q = get_arm_joint_positions();
+        Eigen::Vector4d dq = get_arm_joint_velocities();
 
         q += dq * _skeleton->getTimeStep();
 

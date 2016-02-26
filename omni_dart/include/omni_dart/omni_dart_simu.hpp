@@ -52,7 +52,7 @@ public:
 #endif
     }
 
-    bool set_joints_positions(const Eigen::VectorXd& joints)
+    bool set_joint_positions(const Eigen::VectorXd& joints)
     {
         bool reached = false;
         auto t1 = std::chrono::steady_clock::now();
@@ -67,7 +67,7 @@ public:
         while (!reached)
 #endif
         {
-            Eigen::Vector4d q = _robot->get_arm_joints_positions();
+            Eigen::Vector4d q = _robot->get_arm_joint_positions();
             double q_err = (joints - q).norm();
 
             if (std::abs(q_err) < _position_eps) {

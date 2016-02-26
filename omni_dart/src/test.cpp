@@ -11,7 +11,7 @@ void run(char* model_file, char* path_to_youbot_description, const Eigen::Vector
     auto robot = std::make_shared<omni_dart::Omnipointer>(boost::filesystem::complete(boost::filesystem::path(model_file)).native(), boost::filesystem::complete(boost::filesystem::path(path_to_youbot_description)).native());
     omni_dart::OmniDARTSimu<omni_dart::Omnipointer> simu(robot);
 
-    simu.set_joints_positions(joints);
+    simu.set_joint_positions(joints);
 
     if (simu.broken())
         std::cout << "Finished because of a collision detected" << std::endl;
