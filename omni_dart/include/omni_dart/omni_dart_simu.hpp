@@ -29,8 +29,9 @@ public:
         _broken = false;
 
         _world->setTimeStep(0.01);
-        _world->getConstraintSolver()->setCollisionDetector(new dart::collision::BulletCollisionDetector());
+        _world->getConstraintSolver()->setCollisionDetector(std::unique_ptr<dart::collision::BulletCollisionDetector>(new dart::collision::BulletCollisionDetector()));
 
+        _robot->skeleton()->setPosition(2, M_PI);
         _robot->skeleton()->setPosition(5, 0.123793);
         _world->addSkeleton(_robot->skeleton());
 
@@ -77,7 +78,7 @@ public:
 
             time_waiting = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t1).count();
             if (time_waiting > _max_ms_to_wait) {
-                reached = true;                
+                reached = true;
                 continue;
             }
 
@@ -178,7 +179,7 @@ protected:
     }
 
     dart::simulation::WorldPtr _world;
-    std::shared_ptr<Robot> _robot;    
+    std::shared_ptr<Robot> _robot;
     dart::dynamics::SkeletonPtr _floor;
     bool _broken;
 
