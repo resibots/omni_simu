@@ -98,15 +98,15 @@ public:
             _robot->arm_joints_step(joints);
             _world->step();
 
-            if(_robot->check_collision())
-            {
-              _broken = true;
-              return false;
+            const dart::collision::CollisionResult& col_res = _world->getLastCollisionResult();
+            for (auto link : _robot->arm_links()) {
+              if (col_res.inCollision(link)) {
+                _broken = true;
+                return false;
+              }
             }
-            else
-            {
-                _broken = false;
-            }
+
+            _broken = false;
 
 #ifdef USE_DART_GRAPHIC
             auto COM = _robot->skeleton()->getCOM();

@@ -82,14 +82,9 @@ public:
         _skeleton->disableSelfCollision();
     }
 
-    bool check_collision() const
+    const std::vector<dart::dynamics::BodyNodePtr>& arm_links() const
     {
-        for (auto link : _arm_links) {
-            if (link->isColliding())
-                return true;
-        }
-
-        return false;
+        return _arm_links;
     }
 
 protected:
