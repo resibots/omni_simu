@@ -19,7 +19,7 @@ def check_dart(conf, **kw):
     required = 'required' in kw and kw.get('required', False)
     require_graphics = 'require_graphics' in kw and kw.get('require_graphics', False)
 
-    includes_check = ['/usr/include', '/usr/local/include']
+    includes_check = ['/usr/local/include', '/usr/include']
     libs_check = ['/usr/local/lib', '/usr/lib']
     resibots_dir = conf.options.resibots if hasattr(conf.options, 'resibots') and conf.options.resibots else None
 
@@ -34,7 +34,7 @@ def check_dart(conf, **kw):
     conf.start_msg('Checking for DART includes')
     res = True
     try:
-        for incl in ['dart', 'dart-core']:
+        for incl in ['dart', 'utils/utils', 'utils/urdf/urdf']:
             res = res and conf.find_file('dart/' + incl + '.h', includes_check)
     except:
         res = False
@@ -57,7 +57,7 @@ def check_dart(conf, **kw):
 
     conf.start_msg('Checking for DART libs')
     try:
-        for lib in ['dart', 'dart-core']:
+        for lib in ['dart', 'dart-utils', 'dart-utils-urdf']:
             res = res and conf.find_file('lib' + lib + '.so', libs_check)
     except:
         res = False
@@ -65,7 +65,7 @@ def check_dart(conf, **kw):
     if res:
         conf.env.INCLUDES_DART = [os.path.expanduser(include) for include in includes_check] + ['/usr/local/include/bullet', '/usr/include/bullet']
         conf.env.LIBPATH_DART = [os.path.expanduser(lib) for lib in libs_check]
-        conf.env.LIB_DART = ['dart', 'dart-core', 'assimp', 'LinearMath', 'BulletCollision']
+        conf.env.LIB_DART = ['dart', 'dart-utils', 'dart-utils-urdf', 'assimp', 'LinearMath', 'BulletCollision']
         conf.env.DEFINES_DART = ['USE_DART']
         conf.end_msg('ok')
     else:
@@ -83,7 +83,7 @@ def check_dart(conf, **kw):
 
     conf.start_msg('Checking for DART OSG includes')
     try:
-        res = conf.find_file('osgDart/osgDart.h', includes_check)
+        res = conf.find_file('dart/gui/osg/osg.h', includes_check)
     except:
         res = False
 
@@ -105,14 +105,15 @@ def check_dart(conf, **kw):
 
     conf.start_msg('Checking for DART OSG libs')
     try:
-        res = conf.find_file('libosgDart.so', libs_check)
+        for lib in ['dart-gui', 'dart-gui-osg']:
+            res = res and conf.find_file('lib' + lib + '.so', libs_check)
     except:
         res = False
 
     if res:
         conf.env.INCLUDES_DART_GRAPHIC = [os.path.expanduser(include) for include in includes_check]
         conf.env.LIBPATH_DART_GRAPHIC = [os.path.expanduser(lib) for lib in libs_check]
-        conf.env.LIB_DART_GRAPHIC = ['dart', 'dart-core', 'osgDart', 'osg', 'osgViewer', 'osgManipulator', 'osgGA', 'osgDB']
+        conf.env.LIB_DART_GRAPHIC = ['dart', 'dart-utils', 'dart-utils-urdf', 'assimp', 'LinearMath', 'BulletCollision', 'dart-gui', 'dart-gui-osg', 'osg', 'osgViewer', 'osgManipulator', 'osgGA', 'osgDB']
         conf.env.DEFINES_DART_GRAPHIC = ['USE_DART_GRAPHIC']
         conf.end_msg('ok')
     else:

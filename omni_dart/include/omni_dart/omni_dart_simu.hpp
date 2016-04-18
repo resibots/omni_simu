@@ -11,7 +11,7 @@
 #include <dart/collision/bullet/BulletCollisionDetector.h>
 
 #ifdef USE_DART_GRAPHIC
-#include <osgDart/osgDart.h>
+#include <dart/gui/osg/osg.h>
 #endif
 
 namespace omni_dart {
@@ -29,7 +29,7 @@ public:
         _broken = false;
 
         _world->setTimeStep(0.01);
-        _world->getConstraintSolver()->setCollisionDetector(std::unique_ptr<dart::collision::BulletCollisionDetector>(new dart::collision::BulletCollisionDetector()));
+        _world->getConstraintSolver()->setCollisionDetector(dart::collision::BulletCollisionDetector::create());
 
         _robot->skeleton()->setPosition(2, M_PI);
         _robot->skeleton()->setPosition(5, 0.123793);
@@ -44,7 +44,7 @@ public:
         _robot->enable_self_collisions();
 
 #ifdef USE_DART_GRAPHIC
-        _osg_world_node = new osgDart::WorldNode(_world);
+        _osg_world_node = new dart::gui::osg::WorldNode(_world);
         _osg_world_node->simulate(true);
         _osg_viewer.addWorldNode(_osg_world_node);
          _osg_viewer.setUpViewInWindow(0, 0, 640, 480);
@@ -143,11 +143,9 @@ protected:
         // Give the body a shape
         double floor_width = 10.0;
         double floor_height = 0.1;
-        std::shared_ptr<dart::dynamics::BoxShape> box(new dart::dynamics::BoxShape(Eigen::Vector3d(floor_width, floor_width, floor_height)));
-        box->setColor(dart::Color::Gray());
-
-        body->addVisualizationShape(box);
-        body->addCollisionShape(box);
+        auto box = std::make_shared<dart::dynamics::BoxShape>(Eigen::Vector3d(floor_width, floor_width, floor_height));
+        auto box_node = body->createShapeNodeWith<dart::dynamics::VisualAddon, dart::dynamics::CollisionAddon, dart::dynamics::DynamicsAddon>(box);
+        box_node->getVisualAddon()->setColor(dart::Color::Gray());
 
         // Put the body into position
         Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
@@ -187,8 +185,8 @@ protected:
     double _position_eps;
 
 #ifdef USE_DART_GRAPHIC
-    osg::ref_ptr<osgDart::WorldNode> _osg_world_node;
-    osgDart::Viewer _osg_viewer;
+    osg::ref_ptr<dart::gui::osg::WorldNode> _osg_world_node;
+    dart::gui::osg::Viewer _osg_viewer;
 #endif
 };
 }

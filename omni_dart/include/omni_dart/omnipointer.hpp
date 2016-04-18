@@ -9,6 +9,7 @@
 #include <Eigen/Core>
 
 #include <dart/dart.h>
+#include <dart/utils/urdf/urdf.h>
 
 namespace omni_dart{
 class Omnipointer {
@@ -60,12 +61,12 @@ public:
 
         Eigen::Vector4d q_err = target - q;
         Eigen::Vector4d dq_err = -dq;
-        
+
         // Compute the desired joint forces
         Eigen::Vector4d forces = _skeleton->getMassMatrix().bottomRightCorner<4, 4>() * (KpPD * q_err + KdPD * dq_err) + _skeleton->getCoriolisAndGravityForces().tail<4>();
 
         size_t i = 0;
-        for (auto joint : _arm_joints) {            
+        for (auto joint : _arm_joints) {
             joint->setForce(0, forces(i));
             i++;
         }
